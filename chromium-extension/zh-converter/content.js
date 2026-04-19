@@ -71,8 +71,6 @@
       const node = range.startContainer;
       const source = node.nodeValue || "";
       node.nodeValue = source.slice(0, range.startOffset) + converted + source.slice(range.endOffset);
-    } else if (document.activeElement?.isContentEditable && document.queryCommandSupported("insertText")) {
-      document.execCommand("insertText", false, converted);
     } else {
       range.deleteContents();
       range.insertNode(document.createTextNode(converted));

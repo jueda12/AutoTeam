@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function convertInputText(direction) {
     const core = self.ZhConverterCore;
     if (!core?.convertText) {
-      alert("轉換核心尚未載入，請關閉後重新開啟擴充功能視窗。");
+      alert("轉換核心尚未載入。請確認 converter.js 已正確載入，然後關閉並重新開啟擴充功能視窗。");
       return;
     }
     textEl.value = core.convertText(textEl.value, direction);
@@ -13,7 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   async function runTabCommand(command, direction) {
     chrome.runtime.sendMessage({ action: "popup-command", command, direction }, (response) => {
       if (chrome.runtime.lastError || !response?.ok) {
-        alert("操作失敗，請重試或重新整理頁面後再試。");
+        const err = chrome.runtime.lastError?.message || response?.error || "未知錯誤";
+        alert(`操作失敗：${err}。請重試或重新整理頁面後再試。`);
       }
     });
   }

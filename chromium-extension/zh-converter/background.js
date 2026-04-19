@@ -17,11 +17,15 @@ chrome.runtime.onInstalled.addListener(() => {
   }
 });
 
-function sendToTab(tabId, action, direction) {
-  chrome.tabs.sendMessage(tabId, { action, direction }, () => {
+function sendToTab(tabId, action, direction, callback) {
+  chrome.tabs.sendMessage(tabId, { action, direction }, (response) => {
     if (chrome.runtime.lastError) {
-      console.warn("Failed to send message to tab:", chrome.runtime.lastError.message);
+      const error = chrome.runtime.lastError.message || "unknown error";
+      console.warn("Failed to send message to tab:", error);
+      callback?.({ ok: false, error });
+      return;
     }
+    callback?.(response && typeof response.ok === "boolean" ? response : { ok: true });
   });
 }
 
@@ -40,8 +44,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ ok: false, error: "no active tab" });
       return;
     }
-    sendToTab(tabId, message.command, message.direction);
-    sendResponse({ ok: true });
+    sendToTab(tabId, message.command, message.direction, (result) => {
+      sendResponse(result || { ok: false, error: "unknown error" });
+    });
   });
   return true;
 });
