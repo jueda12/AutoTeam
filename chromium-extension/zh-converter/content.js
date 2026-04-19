@@ -30,7 +30,7 @@
     convertTextNodesInRoot(document.body || document.documentElement, direction);
 
     const editableEls = document.querySelectorAll(
-      "input:not([type]), input[type='text'], input[type='search'], input[type='email'], input[type='url'], input[type='tel'], input[type='password'], input[type='number'], textarea"
+      "input:not([type]), input[type='text'], input[type='search'], input[type='email'], input[type='url'], input[type='tel'], input[type='number'], textarea"
     );
     editableEls.forEach((el) => {
       if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
@@ -64,8 +64,19 @@
     const converted = converter.convertText(selectedText, direction);
 
     const range = selection.getRangeAt(0);
-    range.deleteContents();
-    range.insertNode(document.createTextNode(converted));
+    if (
+      range.startContainer === range.endContainer &&
+      range.startContainer.nodeType === Node.TEXT_NODE
+    ) {
+      const node = range.startContainer;
+      const source = node.nodeValue || "";
+      node.nodeValue = source.slice(0, range.startOffset) + converted + source.slice(range.endOffset);
+    } else if (document.activeElement?.isContentEditable && document.queryCommandSupported("insertText")) {
+      document.execCommand("insertText", false, converted);
+    } else {
+      range.deleteContents();
+      range.insertNode(document.createTextNode(converted));
+    }
     selection.removeAllRanges();
   }
 

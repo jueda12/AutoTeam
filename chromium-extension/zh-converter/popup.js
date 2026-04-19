@@ -1,27 +1,27 @@
-const textEl = document.getElementById("text");
+document.addEventListener("DOMContentLoaded", () => {
+  const textEl = document.getElementById("text");
 
-function convertInputText(direction) {
-  const core = self.ZhConverterCore;
-  if (!core?.convertText) {
-    alert("轉換核心尚未載入，請關閉後重新開啟擴充功能視窗。");
-    return;
-  }
-  textEl.value = core.convertText(textEl.value, direction);
-}
-
-async function runTabCommand(command, direction) {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab?.id) return;
-  chrome.runtime.sendMessage({ action: "popup-command", command, direction, tabId: tab.id }, (response) => {
-    if (chrome.runtime.lastError || !response?.ok) {
-      alert("操作失敗，請重試或重新整理頁面後再試。");
+  function convertInputText(direction) {
+    const core = self.ZhConverterCore;
+    if (!core?.convertText) {
+      alert("轉換核心尚未載入，請關閉後重新開啟擴充功能視窗。");
+      return;
     }
-  });
-}
+    textEl.value = core.convertText(textEl.value, direction);
+  }
 
-document.getElementById("s2t").addEventListener("click", () => convertInputText("s2t"));
-document.getElementById("t2s").addEventListener("click", () => convertInputText("t2s"));
-document.getElementById("page-s2t").addEventListener("click", () => runTabCommand("convert-page", "s2t"));
-document.getElementById("page-t2s").addEventListener("click", () => runTabCommand("convert-page", "t2s"));
-document.getElementById("input-s2t").addEventListener("click", () => runTabCommand("convert-input", "s2t"));
-document.getElementById("input-t2s").addEventListener("click", () => runTabCommand("convert-input", "t2s"));
+  async function runTabCommand(command, direction) {
+    chrome.runtime.sendMessage({ action: "popup-command", command, direction }, (response) => {
+      if (chrome.runtime.lastError || !response?.ok) {
+        alert("操作失敗，請重試或重新整理頁面後再試。");
+      }
+    });
+  }
+
+  document.getElementById("s2t").addEventListener("click", () => convertInputText("s2t"));
+  document.getElementById("t2s").addEventListener("click", () => convertInputText("t2s"));
+  document.getElementById("page-s2t").addEventListener("click", () => runTabCommand("convert-page", "s2t"));
+  document.getElementById("page-t2s").addEventListener("click", () => runTabCommand("convert-page", "t2s"));
+  document.getElementById("input-s2t").addEventListener("click", () => runTabCommand("convert-input", "s2t"));
+  document.getElementById("input-t2s").addEventListener("click", () => runTabCommand("convert-input", "t2s"));
+});

@@ -34,11 +34,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.action !== "popup-command") return;
-  const tabId = sender.tab?.id ?? message.tabId;
-  if (!tabId) {
-    sendResponse({ ok: false, error: "no tab id" });
-    return;
-  }
-  sendToTab(tabId, message.command, message.direction);
-  sendResponse({ ok: true });
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tabId = tabs?.[0]?.id;
+    if (!tabId) {
+      sendResponse({ ok: false, error: "no active tab" });
+      return;
+    }
+    sendToTab(tabId, message.command, message.direction);
+    sendResponse({ ok: true });
+  });
+  return true;
 });
