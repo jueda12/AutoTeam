@@ -51,9 +51,15 @@
     return true;
   }
 
+  function isConvertibleInput(el) {
+    if (!(el instanceof HTMLInputElement)) return false;
+    const blockedTypes = new Set(["password", "hidden", "file", "submit", "reset", "button", "image", "checkbox", "radio", "color", "range", "date", "datetime-local", "month", "time", "week"]);
+    return !blockedTypes.has((el.type || "").toLowerCase());
+  }
+
   function convertSelection(direction) {
     const active = document.activeElement;
-    if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
+    if (active instanceof HTMLTextAreaElement || isConvertibleInput(active)) {
       if (convertSelectionInInput(active, direction)) return;
     }
 
@@ -80,7 +86,7 @@
 
   function convertInput(direction) {
     const active = document.activeElement;
-    if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
+    if (active instanceof HTMLTextAreaElement || isConvertibleInput(active)) {
       if (!convertSelectionInInput(active, direction)) {
         active.value = converter.convertText(active.value, direction);
       }
