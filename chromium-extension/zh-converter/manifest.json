@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "簡繁中文轉換器",
+  "description": "在 Chromium 中切換簡體與繁體中文，支援選取文字、整頁與輸入內容。",
+  "version": "1.0.0",
+  "permissions": ["contextMenus", "activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "簡繁轉換",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["converter.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
