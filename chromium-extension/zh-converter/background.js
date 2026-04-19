@@ -19,7 +19,9 @@ chrome.runtime.onInstalled.addListener(() => {
 
 function sendToTab(tabId, action, direction) {
   chrome.tabs.sendMessage(tabId, { action, direction }, () => {
-    void chrome.runtime.lastError;
+    if (chrome.runtime.lastError) {
+      console.warn("Failed to send message to tab:", chrome.runtime.lastError.message);
+    }
   });
 }
 

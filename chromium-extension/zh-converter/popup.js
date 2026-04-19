@@ -1,7 +1,12 @@
 const textEl = document.getElementById("text");
 
 function convertInputText(direction) {
-  textEl.value = self.ZhConverterCore.convertText(textEl.value, direction);
+  const core = self.ZhConverterCore;
+  if (!core?.convertText) {
+    alert("轉換核心尚未載入，請關閉後重新開啟擴充功能視窗。");
+    return;
+  }
+  textEl.value = core.convertText(textEl.value, direction);
 }
 
 async function runTabCommand(command, direction) {

@@ -1,6 +1,20 @@
 (() => {
   const converter = self.ZhConverterCore;
 
+  function convertTextNodesInRoot(root, direction) {
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        return shouldSkipNode(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    for (const n of nodes) convertTextNode(n, direction);
+  }
+
   function convertTextNode(node, direction) {
     if (!node || !node.nodeValue) return;
     node.nodeValue = converter.convertText(node.nodeValue, direction);
@@ -13,24 +27,15 @@
   }
 
   function convertPage(direction) {
-    const walker = document.createTreeWalker(document.body || document.documentElement, NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-        return shouldSkipNode(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
-      }
-    });
+    convertTextNodesInRoot(document.body || document.documentElement, direction);
 
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    for (const n of nodes) convertTextNode(n, direction);
-
-    const editableEls = document.querySelectorAll("input[type='text'], input[type='search'], input:not([type]), textarea, [contenteditable='true']");
+    const editableEls = document.querySelectorAll(
+      "input:not([type]), input[type='text'], input[type='search'], input[type='email'], input[type='url'], input[type='tel'], input[type='password'], input[type='number'], textarea"
+    );
     editableEls.forEach((el) => {
       if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
         el.value = converter.convertText(el.value, direction);
         if (el.placeholder) el.placeholder = converter.convertText(el.placeholder, direction);
-      } else if (el.isContentEditable) {
-        el.innerText = converter.convertText(el.innerText, direction);
       }
     });
   }
@@ -73,7 +78,7 @@
       return true;
     }
     if (active && active.isContentEditable) {
-      active.innerText = converter.convertText(active.innerText, direction);
+      convertTextNodesInRoot(active, direction);
       return true;
     }
     return false;
