@@ -38,7 +38,7 @@
   function convertSelectionInInput(el, direction) {
     const start = el.selectionStart;
     const end = el.selectionEnd;
-    if (start == null || end == null || start === end) return false;
+    if (start === null || end === null || start === end) return false;
     const value = el.value;
     const converted = converter.convertText(value.slice(start, end), direction);
     el.value = value.slice(0, start) + converted + value.slice(end);

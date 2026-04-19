@@ -14,7 +14,7 @@
 3. 開啟「開發人員模式」
 4. 點選「載入未封裝項目」
 5. 選擇本資料夾：
-   - `/home/runner/work/AutoTeam/AutoTeam/chromium-extension/zh-converter`
+   - `chromium-extension/zh-converter`
 
 ## 使用
 - 在網頁中選取文字後右鍵，選「選取文字 → 轉為繁體/簡體」

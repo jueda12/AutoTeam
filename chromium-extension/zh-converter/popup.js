@@ -7,7 +7,11 @@ function convertInputText(direction) {
 async function runTabCommand(command, direction) {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) return;
-  chrome.runtime.sendMessage({ action: "popup-command", command, direction, tabId: tab.id });
+  chrome.runtime.sendMessage({ action: "popup-command", command, direction, tabId: tab.id }, (response) => {
+    if (chrome.runtime.lastError || !response?.ok) {
+      alert("操作失敗，請重試或重新整理頁面後再試。");
+    }
+  });
 }
 
 document.getElementById("s2t").addEventListener("click", () => convertInputText("s2t"));
